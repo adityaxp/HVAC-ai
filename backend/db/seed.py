@@ -4,36 +4,87 @@ import pandas as pd
 from loguru import logger
 from sqlalchemy import text
 
-from db.database import SessionLocal, engine
-
-from services.preprocessing_service import (
-    PreprocessingService
+from db.database import (
+    SessionLocal,
+    engine,
 )
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+from services.preprocessing_service import (
+    PreprocessingService,
+)
 
-CSV_PATH = BASE_DIR / "data" / "hvac_sensor_data.csv"
-SCHEMA_PATH = BASE_DIR / "db" / "schema.sql"
+BASE_DIR = (
+    Path(__file__)
+    .resolve()
+    .parent
+    .parent
+)
+
+CSV_PATH = (
+    BASE_DIR
+    / "data"
+    / "hvac_sensor_data.csv"
+)
+
+SCHEMA_PATH = (
+    BASE_DIR
+    / "db"
+    / "schema.sql"
+)
 
 
 def create_tables():
-    logger.info("Creating database tables...")
+    logger.info(
+        "Creating database tables..."
+    )
 
     with engine.begin() as connection:
-        with open(SCHEMA_PATH, "r", encoding="utf-8") as file:
+        with open(
+            SCHEMA_PATH,
+            "r",
+            encoding="utf-8",
+        ) as file:
             schema_sql = file.read()
 
-        for statement in schema_sql.split(";"):
-            statement = statement.strip()
+        for statement in (
+            schema_sql.split(";")
+        ):
+            statement = (
+                statement.strip()
+            )
 
             if statement:
-                connection.execute(text(statement))
+                connection.execute(
+                    text(statement)
+                )
 
-    logger.success("Database tables created successfully")
+    logger.success(
+        "Database tables ready"
+    )
 
 
-def seed_sensor_readings(db, df: pd.DataFrame):
-    logger.info("Seeding sensor readings...")
+def database_has_data(
+    db,
+):
+    result = db.execute(
+        text(
+            """
+            SELECT COUNT(*)
+            FROM sensor_readings
+            """
+        )
+    ).scalar()
+
+    return result > 0
+
+
+def seed_sensor_readings(
+    db,
+    df: pd.DataFrame,
+):
+    logger.info(
+        "Seeding sensor readings..."
+    )
 
     query = text(
         """
@@ -58,19 +109,33 @@ def seed_sensor_readings(db, df: pd.DataFrame):
         """
     )
 
-    records = df.to_dict(orient="records")
+    records = df.to_dict(
+        orient="records"
+    )
 
-    db.execute(query, records)
+    db.execute(
+        query,
+        records,
+    )
 
     logger.success(
-        f"Inserted {len(records)} sensor readings"
+        f"Inserted {len(records)} "
+        f"sensor readings"
     )
 
 
-def seed_hvac_status(db, df: pd.DataFrame):
-    logger.info("Creating HVAC status records...")
+def seed_hvac_status(
+    db,
+    df: pd.DataFrame,
+):
+    logger.info(
+        "Creating HVAC status records..."
+    )
 
-    unique_units = df["unit_id"].unique()
+    unique_units = (
+        df["unit_id"]
+        .unique()
+    )
 
     query = text(
         """
@@ -96,46 +161,67 @@ def seed_hvac_status(db, df: pd.DataFrame):
         for unit_id in unique_units
     ]
 
-    db.execute(query, records)
+    db.execute(
+        query,
+        records,
+    )
 
     logger.success(
-        f"Created {len(records)} HVAC status records"
+        f"Created {len(records)} "
+        f"HVAC status records"
     )
 
 
-def clear_existing_data(db):
-    logger.info("Clearing existing data...")
-
-    db.execute(text("DELETE FROM sensor_readings"))
-    db.execute(text("DELETE FROM hvac_status"))
-    db.execute(text("DELETE FROM alerts"))
-
-    logger.success("Existing data cleared")
-
-
-def main():
-    logger.info("Starting database seed process")
-
-    df = pd.read_csv(CSV_PATH)
-    preprocessor = PreprocessingService()
-    df = preprocessor.clean(df)
-
-    logger.success("Preprocessing completed")
-
+def seed_database():
     logger.info(
-        f"Loaded {len(df)} rows from CSV"
+        "Starting database initialization"
     )
+
+    create_tables()
 
     db = SessionLocal()
 
     try:
-        create_tables()
+        if database_has_data(db):
+            logger.info(
+                "Database already seeded"
+            )
 
-        clear_existing_data(db)
+            return
 
-        seed_sensor_readings(db, df)
+        logger.info(
+            "Loading CSV dataset"
+        )
 
-        seed_hvac_status(db, df)
+        df = pd.read_csv(
+            CSV_PATH
+        )
+
+        preprocessor = (
+            PreprocessingService()
+        )
+
+        df = preprocessor.clean(
+            df
+        )
+
+        logger.success(
+            "Preprocessing completed"
+        )
+
+        logger.info(
+            f"Loaded {len(df)} rows"
+        )
+
+        seed_sensor_readings(
+            db,
+            df,
+        )
+
+        seed_hvac_status(
+            db,
+            df,
+        )
 
         db.commit()
 
@@ -147,7 +233,7 @@ def main():
         db.rollback()
 
         logger.exception(
-            f"Seed process failed: {e}"
+            f"Database seed failed: {e}"
         )
 
         raise
@@ -157,4 +243,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    seed_database()
