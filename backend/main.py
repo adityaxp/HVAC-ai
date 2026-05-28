@@ -16,6 +16,9 @@ from api.assistant import (
     router as assistant_router,
 )
 
+from db.seed import seed_database
+
+seed_database()
 
 
 app = FastAPI(
