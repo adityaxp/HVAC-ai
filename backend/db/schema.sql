@@ -1,4 +1,4 @@
-CREATE TABLE sensor_readings (
+CREATE TABLE IF NOT EXISTS sensor_readings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp TEXT NOT NULL,
     unit_id TEXT NOT NULL,
@@ -9,14 +9,14 @@ CREATE TABLE sensor_readings (
     power REAL
 );
 
-CREATE TABLE hvac_status (
+CREATE TABLE IF NOT EXISTS hvac_status (
     unit_id TEXT PRIMARY KEY,
     health_score INTEGER DEFAULT 100,
     status TEXT DEFAULT 'healthy',
     last_updated TEXT
 );
 
-CREATE TABLE alerts (
+CREATE TABLE IF NOT EXISTS alerts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     unit_id TEXT NOT NULL,
     severity TEXT NOT NULL,
