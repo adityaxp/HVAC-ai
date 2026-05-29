@@ -41,6 +41,24 @@ class RecommendationService:
             all_data["unit_id"] == unit_id
         ]
 
+        anomaly_percentage = round(
+            (
+                (unit_data["is_anomaly"] == -1).sum()
+                / len(unit_data)
+            )
+            * 100,
+            2,
+        )
+
+        if anomaly_percentage >= 20:
+            priority = "urgent"
+        elif anomaly_percentage >= 10:
+            priority = "high"
+        elif anomaly_percentage >= 3:
+            priority = "medium"
+        else:
+            priority = "low"
+
         evidence = {
             "high_vibration_events": int(vibration_count),
             "low_airflow_events": int(airflow_count),
@@ -143,7 +161,7 @@ class RecommendationService:
         ):
             return {
                 "unit_id": unit_id,
-                "priority": "critical",
+                "priority": priority,
                 "confidence": "high",
                 "issue":
                     "Potential blower motor degradation",
@@ -173,7 +191,7 @@ class RecommendationService:
         if vibration_count >= 3:
             return {
                 "unit_id": unit_id,
-                "priority": "high",
+                "priority": priority,
                 "confidence": "high",
                 "issue":
                     "Mechanical vibration anomaly",
@@ -199,7 +217,7 @@ class RecommendationService:
         if airflow_count >= 3:
             return {
                 "unit_id": unit_id,
-                "priority": "medium",
+                "priority": priority,
                 "confidence": "medium",
                 "issue":
                     "Airflow restriction detected",
@@ -225,7 +243,7 @@ class RecommendationService:
         if power_count >= 3:
             return {
                 "unit_id": unit_id,
-                "priority": "medium",
+                "priority": priority,
                 "confidence": "medium",
                 "issue":
                     "Elevated power consumption",
@@ -251,7 +269,7 @@ class RecommendationService:
         if temp_count >= 3:
             return {
                 "unit_id": unit_id,
-                "priority": "medium",
+                "priority": priority,
                 "confidence": "medium",
                 "issue":
                     "Thermal efficiency degradation",
@@ -282,7 +300,7 @@ class RecommendationService:
         ):
             return {
                 "unit_id": unit_id,
-                "priority": "low",
+                "priority": priority,
                 "confidence": "medium",
                 "issue":
                     "Isolated abnormal operating event",
@@ -302,7 +320,7 @@ class RecommendationService:
         if anomaly_count <= 2:
             return {
                 "unit_id": unit_id,
-                "priority": "low",
+                "priority": priority,
                 "confidence": "medium",
                 "issue":
                     "Minor operational deviations observed",
@@ -327,7 +345,7 @@ class RecommendationService:
 
         return {
             "unit_id": unit_id,
-            "priority": "medium",
+            "priority": priority,
             "confidence": "low",
             "issue":
                 "Inconsistent operating behavior detected",
@@ -361,7 +379,7 @@ class RecommendationService:
         if anomalies.empty:
             return {
                 "unit_id": unit_id,
-                "priority": "healthy",
+                "priority": "low",
                 "confidence": "high",
                 "issue":
                     "Operating within expected parameters",
