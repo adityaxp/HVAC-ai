@@ -4,6 +4,7 @@ from loguru import logger
 from sqlalchemy import text
 
 from db.database import SessionLocal
+
 from services.recommendation_service import (
     RecommendationService,
 )
@@ -18,8 +19,7 @@ class AlertService:
     def generate_alert(
         self,
         unit_id: str,
-        timestamp: datetime,
-
+        timestamp: datetime | None = None,
     ):
         logger.info(
             f"Evaluating alerts for {unit_id}"
@@ -36,7 +36,7 @@ class AlertService:
             "priority"
         ]
 
-        # Ignore healthy/low risk units
+        # Ignore healthy / low risk units
 
         if priority in [
             "healthy",
@@ -74,7 +74,8 @@ class AlertService:
 
             if existing_alert:
                 logger.info(
-                    f"Active alert already exists for {unit_id}"
+                    "Active alert already exists "
+                    f"for {unit_id}"
                 )
 
                 return {
@@ -85,13 +86,33 @@ class AlertService:
                         existing_alert,
                 }
 
-            title = (f"{unit_id}: " f"{recommendation['issue']}")
+            title = (
+                recommendation[
+                    "issue"
+                ]
+            )
 
-            message = recommendation[
-                "description"
-            ]
+            # Better for UI than repeating issue
+
+            message = (
+                recommendation[
+                    "recommendations"
+                ][0]
+                if recommendation[
+                    "recommendations"
+                ]
+                else recommendation[
+                    "description"
+                ]
+            )
 
             severity = priority
+
+            created_at = (
+                timestamp
+                if timestamp
+                else datetime.now()
+            )
 
             db.execute(
                 text(
@@ -127,7 +148,7 @@ class AlertService:
 
                     "created_at":
                         str(
-                            timestamp
+                            created_at
                         ),
                 },
             )
@@ -143,7 +164,8 @@ class AlertService:
             ).scalar()
 
             logger.success(
-                f"Created {severity} alert for {unit_id}"
+                f"Created {severity} alert "
+                f"for {unit_id}"
             )
 
             return {
@@ -156,12 +178,75 @@ class AlertService:
 
         except Exception:
             logger.exception(
-                f"Failed creating alert for {unit_id}"
+                f"Failed creating alert "
+                f"for {unit_id}"
             )
 
             db.rollback()
 
             raise
+
+        finally:
+            db.close()
+
+    def seed_initial_alerts(
+        self,
+    ):
+        logger.info(
+            "Generating initial alerts..."
+        )
+
+        db = SessionLocal()
+
+        try:
+            latest_timestamp = db.execute(
+                text(
+                    """
+                    SELECT MAX(timestamp)
+                    FROM sensor_readings
+                    """
+                )
+            ).scalar()
+
+            if not latest_timestamp:
+                logger.warning(
+                    "No sensor data found "
+                    "for initial alerts"
+                )
+
+                return
+
+            timestamp = (
+                datetime.fromisoformat(
+                    latest_timestamp
+                )
+            )
+
+            units = [
+                "HVAC_1",
+                "HVAC_2",
+                "HVAC_3",
+                "HVAC_4",
+                "HVAC_5",
+            ]
+
+            for unit_id in units:
+                try:
+                    self.generate_alert(
+                        unit_id=unit_id,
+                        timestamp=timestamp,
+                    )
+
+                except Exception:
+                    logger.exception(
+                        "Failed generating "
+                        f"initial alert "
+                        f"for {unit_id}"
+                    )
+
+            logger.success(
+                "Initial alerts generated"
+            )
 
         finally:
             db.close()
