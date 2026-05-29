@@ -13,6 +13,10 @@ from services.preprocessing_service import (
     PreprocessingService,
 )
 
+from services.alert_service import (
+    AlertService,
+)
+
 BASE_DIR = (
     Path(__file__)
     .resolve()
@@ -224,6 +228,16 @@ def seed_database():
         )
 
         db.commit()
+
+        logger.info(
+            "Seeding initial alerts..."
+        )
+
+        alert_service = (
+            AlertService()
+        )
+
+        alert_service.seed_initial_alerts()
 
         logger.success(
             "Database seeded successfully"
