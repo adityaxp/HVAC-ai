@@ -1,56 +1,71 @@
-# Welcome to your Expo app 👋
+# Softway HVAC Monitoring App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native (Expo) app for monitoring a fleet of HVAC units in real time — health
+scores, alerts, anomaly trends, per-metric telemetry, an AI diagnostics assistant, an
+iOS home-screen widget.
+
+## Project structure
+
+```
+src/
+  app/              # expo-router routes
+    (tabs)/         # home, stats, assistant tabs
+    alerts/         # alerts screen
+    hvac-details/   # per-unit telemetry screen
+  components/       # shared UI (gauges, sheets, skeletons, themed text, etc.)
+  constants/        # theme (colors, fonts, spacing)
+  hooks/            # theme / color-scheme hooks
+  services/         # axios API layer
+  store/            # zustand stores (one per screen/feature)
+  types/            # shared TypeScript types
+  utils/            # notifications and helpers
+  widgets/          # iOS home-screen widget + data sync
+```
+
+## Prerequisites
+
+- Node.js (LTS) and npm
+- Xcode (iOS) and/or Android Studio
+- A **development build** is required — this app uses native modules
+  (`expo-widgets`, `expo-glass-effect`, `react-native-true-sheet`) that are **not**
+  available in Expo Go.
+
+## Environment variables
+
+Create a `.env` file in the project root:
+
+```bash
+EXPO_PUBLIC_BASE_URL=https://your-backend-url.example.com
+```
+
+The app reads this at runtime to talk to the HVAC backend API.
 
 ## Get started
 
 1. Install dependencies
 
    ```bash
-   npm install
+   npx expo install
    ```
 
-2. Start the app
+2. Generate native projects
 
    ```bash
-   npx expo start
+   npx expo prebuild
    ```
 
-In the output, you'll find options to open the app in a
+3. Build and run on a device or simulator
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   ```bash
+   npx expo run:ios
+   # or
+   npx expo run:android
+   ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Notes
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **Widget is iOS-only.** It's built with SwiftUI via `@expo/ui/swift-ui` and configured
+  in `app.json` under the `expo-widgets` plugin. The widget refreshes whenever the Home
+  tab fetches HVAC metrics.
+- After changing native config (e.g. `app.json` plugins), re-run
+  `npx expo prebuild --clean` and rebuild.
