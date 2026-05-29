@@ -297,7 +297,7 @@ const index = () => {
       }
     };
 
-    // void notifyNewAlerts();
+    void notifyNewAlerts();
   }, [alertsData, alertsLoading]);
 
   return (
