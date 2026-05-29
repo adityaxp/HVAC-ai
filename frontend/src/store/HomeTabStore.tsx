@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 import { GET_ACTIVE_ALERTS, GET_HVAC_METRICS, GET_WEEKLY_ANOMALY } from "@/services";
 import { AlertItem, Alerts, HVACItem, WeeklyAnomaly } from "@/types";
+import { syncHVACWidget } from "@/widgets/syncHVACWidget";
 
 type HVACMetricsResponse = {
   count: number;
@@ -39,7 +40,9 @@ export const useHomeTabStore = create<HomeTabState>((set) => ({
     try {
       const response = await GET_HVAC_METRICS();
       const data = response.data as HVACMetricsResponse;
-      set({ hvacData: data.items ?? [], loading: false });
+      const items = data.items ?? [];
+      set({ hvacData: items, loading: false });
+      syncHVACWidget(items);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to fetch HVAC metrics";
