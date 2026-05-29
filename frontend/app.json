@@ -58,7 +58,8 @@
               "name": "HVACStatusWidget",
               "displayName": "HVAC Status",
               "description": "Monitor the health of your HVAC units at a glance.",
-              "supportedFamilies": ["systemSmall", "systemMedium", "systemLarge"]
+              "supportedFamilies": ["systemSmall", "systemMedium", "systemLarge"],
+              "android": null
             }
           ]
         }
