@@ -18,6 +18,10 @@ from api.assistant import (
 
 from db.seed import seed_database
 
+from api.stats import (
+    router as stats_router,
+)
+
 seed_database()
 
 
@@ -39,4 +43,8 @@ app.include_router(
 
 app.include_router(
     assistant_router
+)
+
+app.include_router(
+    stats_router
 )
