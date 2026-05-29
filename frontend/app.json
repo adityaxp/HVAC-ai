@@ -48,6 +48,20 @@
             "imageWidth": 76
           }
         }
+      ],
+      [
+        "expo-widgets",
+        {
+          "groupIdentifier": "group.com.adityaxpv.softwayhvac",
+          "widgets": [
+            {
+              "name": "HVACStatusWidget",
+              "displayName": "HVAC Status",
+              "description": "Monitor the health of your HVAC units at a glance.",
+              "supportedFamilies": ["systemSmall", "systemMedium", "systemLarge"]
+            }
+          ]
+        }
       ]
     ],
     "experiments": {
