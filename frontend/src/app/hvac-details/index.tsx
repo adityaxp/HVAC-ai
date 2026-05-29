@@ -716,7 +716,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   telemetryTitle: {
-    fontSize: 10,
+    fontSize: 18,
     lineHeight: 36,
     marginBottom: Spacing.two,
   },
