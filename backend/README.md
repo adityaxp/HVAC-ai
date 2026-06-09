@@ -32,7 +32,7 @@ Backend for an HVAC maintenance monitoring system. It ingests sensor readings, d
 
 ```bash
 # Clone and enter the project
-cd softway-hvac-backend
+cd backend
 
 # Create and activate a virtual environment
 python -m venv venv
