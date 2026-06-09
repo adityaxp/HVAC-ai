@@ -1,4 +1,4 @@
-# Softway HVAC Monitoring App
+# HVAC Monitoring App
 
 A React Native (Expo) app for monitoring a fleet of HVAC units in real time — health
 scores, alerts, anomaly trends, per-metric telemetry, an AI diagnostics assistant, an
