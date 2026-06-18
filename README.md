@@ -93,9 +93,7 @@ This context is combined into a grounded prompt and sent to OpenRouter, allowing
 
 ## Machine Learning Approach
 
-### Isolation Forest
-
-Isolation Forest was selected for anomaly detection because:
+Isolation Forest is used for anomaly detection because:
 
 - Works well without labeled failure data
 - Efficient for multidimensional sensor data
@@ -109,32 +107,6 @@ Sensor inputs include:
 - Airflow
 - Vibration
 - Power Consumption
-
----
-
-## Technology Stack
-
-### Mobile App
-
-- React Native
-- Expo
-- TypeScript
-
-### Backend
-
-- FastAPI
-- Python
-- SQLite
-- SQLAlchemy
-
-### Machine Learning
-
-- Scikit-learn
-- Isolation Forest
-
-### AI
-
-- OpenRouter
 
 ---
 
